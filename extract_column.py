@@ -2,15 +2,15 @@
 
 import argparse
 
-def extract_column_from_file(file_path, column_number):
+def extract_column_from_file(input_file, column_number):
     """
     Extract a specified column from a text file containing a table.
 
-    :param file_path: Path to the text file.
+    :param input_file: Path to the text file.
     :param column_number: Column number to extract (0-based).
     :return: List of values from the specified column.
     """
-    with open(file_path, 'r') as file:
+    with open(input_file, 'r') as file:
         lines = file.readlines()
         
         # Try to detect delimiter (assuming tab or space)
@@ -21,11 +21,24 @@ def extract_column_from_file(file_path, column_number):
 
     return column_values
 
+
+def save_to_file(data, output_file):
+    """
+    Save a list of data in a file.
+
+    :param data: The data to save.
+    :param output_file: Path to the output text file.
+    """
+    with open(output_file, 'w') as file:
+        for item in data:
+            file.write(item + '\n')
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Extract a specific column from a tab-delimited file.")
     
-    parser.add_argument('--input', type=str, required=True, help="Path to the input file.")
-    parser.add_argument('--column', type=int, required=True, help="Column number to extract (starting from 0).")
+    parser.add_argument('-i', '--input', type=str, required=True, help="Path to the input file.")
+    parser.add_argument('-c', '--column', type=int, required=True, help="Column number to extract (starting from 0).")
+    parser.add_argument('-o', '--output', type=str, help="Path to the ouput file to save data.")
 
     args = parser.parse_args()
 
@@ -33,5 +46,10 @@ if __name__ == '__main__':
         results = extract_column_from_file(args.input, args.column)
         for value in results:
             print(value)
+        if args.output:
+            save_to_file(results, args.output)
+            print(f'[+] Results saved to {args.output}')
     except IndexError:
-        print("Error: Invalid column number specified")
+        print("[!] Error: Invalid column number specified")
+    except Exception as e:
+        print(f"[!] {e}")
